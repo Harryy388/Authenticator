@@ -23,7 +23,7 @@ class AuthController extends Controller
             ], 401);
         }
 
-    
+
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -32,6 +32,15 @@ class AuthController extends Controller
             'token' => $token
         ]);
     }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json([
+            'message' => 'Uitgelogd'
+        ]);
+    }
+
 
     public function register(Request $request)
     {
@@ -50,6 +59,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Registratie gelukt',
             'user' => $user
+
         ], 201);
     }
 }
