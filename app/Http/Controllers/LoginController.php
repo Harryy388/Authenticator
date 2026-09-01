@@ -5,15 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-
+use PragmaRX\Google2FA\Google2FA;
 
 class LoginController extends Controller
 {
-     public function login(Request $request)
+    public function login(Request $request)
     {
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'code' => 'nullable|string',
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -23,6 +24,29 @@ class LoginController extends Controller
                 'message' => 'Ongeldige inloggegevens'
             ], 401);
         }
+
+        if ($user->mfa_enabled) {
+            if (!$request->code) {
+                return response()->json([
+                    'message' => 'MFA vereist',
+                    'mfa_required' => true
+                ]);
+            }
+
+            $google2fa = new Google2FA();
+
+            $isValid = $google2fa->verifyKey(
+                $user->mfa_secret,
+                $request->code
+            );
+
+            if (!$isValid) {
+                return response()->json([
+                    'message' => 'Ongeldige MFA-code'
+                ], 401);
+            }
+        }
+
 
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -34,7 +58,7 @@ class LoginController extends Controller
         ]);
     }
 
-     public function logout(Request $request)
+    public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
         return response()->json([
