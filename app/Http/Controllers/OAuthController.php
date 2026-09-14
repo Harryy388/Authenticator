@@ -25,9 +25,7 @@ class OAuthController extends Controller
 }
     $token = $user->createToken('auth_token')->plainTextToken;
 
-    return response()->json([
-    'message' => 'Inloggen met GitHub gelukt',
-    'user' => $user,
+    return view('oauth-success', [
     'token' => $token
 ]);
    

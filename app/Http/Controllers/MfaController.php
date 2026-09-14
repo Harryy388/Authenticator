@@ -45,6 +45,24 @@ class MfaController extends Controller
 
         ]);
     }
+
+
+    
+    public function disable(Request $request)
+    {
+        $user = $request->user();
+
+        $user->mfa_enabled = false;
+        $user->mfa_secret = null;
+        $user->save();
+
+        return response()->json([
+            'message' => 'MFA is uitgezet'
+        ]);
+    }
+
+
+
     public function verify(Request $request)
     {
         $request->validate([
@@ -65,10 +83,10 @@ class MfaController extends Controller
                 'message' => 'Ongeldige MFA-code'
             ], 401);
         }
-        
+
         $user->mfa_enabled = true;
         $user->save();
-        
+
         return response()->json([
             'message' => 'MFA verificatie gelukt'
         ]);

@@ -13,3 +13,4 @@ Route::get('/user', function (Request $request) {
     return $request->user();})->middleware('auth:sanctum');
 Route::post('/mfa/verify', [MfaController::class, 'verify'])->middleware('auth:sanctum');
 Route::post('/mfa/setup', [MfaController::class, 'setup'])->middleware('auth:sanctum');
+Route::post('/mfa/disable', [MfaController::class, 'disable'])->middleware('auth:sanctum');
